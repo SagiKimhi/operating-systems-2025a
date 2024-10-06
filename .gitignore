@@ -1,0 +1,32 @@
+# Exclude All
+
+*
+
+# Include depth 0 Directories
+
+!*/
+
+# Dot Files
+
+!.github/**/*
+!.gitignore
+!.doxygen
+!.clang-format
+
+# Common Files
+
+!Makefile
+!LICENSE
+!README.md
+
+# Source Files
+
+!src/**/*.[ch]
+
+# Documentation
+
+!docs/**/*
+# Media Assets
+
+!assets/*
+
