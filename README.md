@@ -25,31 +25,38 @@ sharing, learning from other people's solutions, and encouraging collaborations.
 1. Clone the repository (or a fork of this repo) and set up local configurations
    (see workflow example's configurations section).
 
-2. Add appropriate tasks for whatever it is you are working on in the
-   repository's project page.
+2. Create a new issue for whatever it is you will be working on, or select an
+   existing issue from the
 
-3. Select a task and create a dedicated branch for working on that task
-   according to the following branch rule sets:
+3. Assign the issue to yourself, and create a dedicated branch for working on
+   that issue using one of the name patterns listed below:
 
-    - doc/\<author\>/\<issue-id\> : Use for documentation type issues and items.
+    - doc/\<issue-id\>/\<author\> : Use for issues labled as 'documentation'.
 
-    - fix/\<author\>/\<issue-id\> : Use for fixing bug and security bug type
-      issues and items.
+    - fix/\<issue-id\>/\<author\> : Use for issues labled as 'bug'.
 
-    - feat/\<author\>/\<issue-id\> : Use for feature type issues and items.
+    - feat/\<issue-id\>/\<author\> : Use for issues labled as 'enhancement'.
 
-    - enhance/\<author\>/\<issue-id\> : Use for enhancement type issues and
-      items.
+    - maint/\<issue-id\>/\<author\> : Use for issues labled as 'maintnance'.
 
-    - refactor/\<author\>/\<issue-id\> : Use for refactor type issues and items.
+    - exercise/\<issue-id\>/\<author\> : Use for issues labled as 'exercise'.
 
-    - chore/\<author\>/\<issue-id\> : Use for general chores which do not fall
-      under any of the other categories listed in this section.
+    - assignment/maman11/\<author\> : Use for working on your solution to
+      maman11 assignment.
+
+    - assignment/maman12/\<author\> : Use for working on your solution to
+      maman12 assignment.
+
+    - assignment/maman13/\<author\> : Use for working on your solution to
+      maman13 assignment.
+
+    - assignment/\<issue-id\>/\<author\> : Use for working on your solution to
+      an assignment not listed above from a different institution.
 
 ## Complete workflow example
 
 The following is a workflow example to set up git and commit changes from a user
-called MrDocker working on a bug assigned to him with the issue id 137.
+called MrDocker working on maman11 assignment.
 
 ### Cloning the repository:
 
@@ -85,19 +92,23 @@ git config --local push.followTags true
 ### Setting up a new branch, staging, commiting, and pushing changes to remote
 
 ```sh
-# Creates a new branch called "bug/MrDocker/137" and set it up to track changes
-# from upstream branch origin/main
-git checkout origin/main -b fix/MrDocker/137
+# Creates a new branch called "assignment/maman11/MrDocker" and set it up to
+# track changes from upstream branch origin/main
+#
+git checkout origin/main -b assignment/maman11/MrDocker
 
 # Staging changes to file1, file2, and file3
+#
 git add file1 file2 file3
 
 # Alternatively, use the -p or --patch flag to inspect changes in each file and
 # interactively choose whether to skip/stage/edit change per-file for all
 # changed files
+#
 git add -p
 
 # Inspect differences between staged changes and the HEAD branch
+#
 git diff --word-diff-regex=. --color-words --cached
 
 # Commit the changes, use the branch type for the title of your commit message
@@ -107,16 +118,16 @@ git diff --word-diff-regex=. --color-words --cached
 #
 # This is useful when reviewing commits as each commit provides a brief
 # description of what is going to happen after applying its changes.
-git commit --verbose -s -m "fix(parser): add missing flags in parse_flags method"
+#
+git commit --verbose -s -m "assignment: add maman11 solution by MrDocker"
 
 # Pull with rebase to ensure local changes are up to date with newest changes to
 # upstream branch
-git pull 
-# Or if you skipped the configurations section, add the --rebase flag to set the
-# pull strategy to "rebase"
+#
 git pull --rebase
 
 # Push the changes to remote repository
+#
 git push origin HEAD
 ```
 
