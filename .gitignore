@@ -6,27 +6,34 @@
 
 !*/
 
-# Dot Files
-
-!.github/**/*
-!.gitignore
-!.doxygen
-!.clang-format
-
 # Common Files
 
-!Makefile
+!.github/**/*
+!**/.gitignore
 !LICENSE
 !README.md
 
-# Source Files
-
-!src/**/*.[ch]
-
-# Documentation
-
-!docs/**/*
-# Media Assets
+# Assets
 
 !assets/*
+
+# Exercises
+
+!exercises/book/**/*
+!exercises/lecture/**/*
+!exercises/README.md
+
+# Assignments
+
+!assignments/maman11/*
+!assignments/maman12/*
+!assignments/maman13/*
+!assignments/README.md
+
+# Utilities
+
+!utils/scripts/*
+!utils/libraries/**/*
+!utils/templates/**/*
+!utils/README.md
 
