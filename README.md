@@ -26,7 +26,7 @@ sharing, learning from other people's solutions, and encouraging collaborations.
    (see workflow example's configurations section).
 
 2. Create a new issue for whatever it is you will be working on, or select an
-   existing issue from the
+   existing issue from the [issues page](issues/)
 
 3. Assign the issue to yourself, and create a dedicated branch for working on
    that issue using one of the name patterns listed below:
