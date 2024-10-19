@@ -19,9 +19,15 @@
 
 # Exercises
 
-!exercises/book/**/*
-!exercises/lecture/**/*
-!exercises/README.md
+!exercises/**/*.md
+!exercises/book/**/*.[ch]
+!exercises/book/**/Makefile
+!exercises/book/**/.doxygen*
+!exercises/book/**/.clang-format
+!exercises/lecture/**/*.[ch]
+!exercises/lecture/**/Makefile
+!exercises/lecture/**/.doxygen*
+!exercises/lecture/**/.clang-format
 
 # Assignments
 
