@@ -27,50 +27,71 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Files and Directories
-# -----------------------------------------------------------------------------
-
-BINARY=a.out
-
-TARGET_DIR=./build
-
-SOURCE_DIR=./src
-
-TARGET:=$(TARGET_DIR)/$(BINARY)
-
-SOURCES:=$(wildcard $(SOURCE_DIR)/*.c)
-
-OBJECTS:=$(subst $(SOURCE_DIR),$(TARGET_DIR),$(SOURCES:.c=.o))
-
-# -----------------------------------------------------------------------------
-# Compiler and Flags
+# Variables
 # -----------------------------------------------------------------------------
 
 # Compiler
-CC=gcc
+# --------
 
-# Compilation Flags
-CFLAGS:=-ansi -pedantic -Wall -Wextra -I$(SOURCE_DIR)
+CC = gcc
+
+# Binary
+# ------
+
+BINARY=a.out
+
+# Directories
+# -----------
+
+SOURCE_DIR=./src
+
+TARGET_DIR=./build
+
+# Files
+# -----
+
+TARGET:=$(TARGET_DIR)/$(BINARY)
+
+SOURCES:=$(filter-out %main.c,$(wildcard $(SOURCE_DIR)/*.c))
+
+OBJECTS:=$(subst $(SOURCE_DIR),$(TARGET_DIR),$(SOURCES:.c=.o))
+
+# Flags
+# -----
+
+CFLAGS:=-ansi -Wall -Wextra -Werror -I$(SOURCE_DIR)
+
+# Colors
+# ------
+
+SET_WHITE_TEXT:=@echo -n "\033[0m"
+
+SET_RED_TEXT:=@echo -n "\033[31m"
+
+SET_GREEN_TEXT:=@echo -n "\033[32m"
+
+SET_YELLOW_TEXT:=@echo -n "\033[33m"
+
+SET_BLUE_TEXT:=@echo -n "\033[34m"
+
+SET_MAGNETA_TEXT:=@echo -n "\033[35m"
 
 # -----------------------------------------------------------------------------
-# Utils
+# Compilation Verbosity
 # -----------------------------------------------------------------------------
 
-SET_WHITE_TEXT:=@echo -n "\033[0m" # White text for "printf"
-
-SET_RED_TEXT:=@echo -n "\033[31m" # Red text for "printf"
-
-SET_GREEN_TEXT:=@echo -n "\033[32m" # Green text for "printf"
-
-SET_YELLOW_TEXT:=@echo -n "\033[33m" # Yellow text for "printf"
-
-SET_BLUE_TEXT:=@echo -n "\033[34m" # Blue text for "printf"
-
-SET_MAGNETA_TEXT:=@echo -n "\033[35m" # Magneta text for "printf"
+ifneq ($(VERBOSE), true)
+	HIDE = @
+else
+	HIDE =
+endif
 
 # -----------------------------------------------------------------------------
-# Top Level Rules
+# Top Rules
 # -----------------------------------------------------------------------------
+
+# PHONY
+# -----
 
 .PHONY: \
 	all \
@@ -87,18 +108,30 @@ SET_MAGNETA_TEXT:=@echo -n "\033[35m" # Magneta text for "printf"
 	clean_target_dir \
 	clean_done
 
+# All
+# ---
+
 all: \
 	check \
 	compile
 
+# Check
+# -----
+
 check: \
 	check_binary
+
+# Compile
+# -------
 
 compile: \
 	create_build_dir \
 	build_and_link \
 	post_compilation_cleanup \
 	compilation_done
+
+# Clean
+# -----
 
 clean: \
 	clean_objects \
@@ -127,30 +160,48 @@ endif
 # Compilation Rules
 # -----------------------------------------------------------------------------
 
+# Create Build Dir
+# ----------------
+
 create_build_dir:
 	@mkdir -p $(TARGET_DIR)
+
+# Build and Link
+# --------------
 
 build_and_link: \
 	$(OBJECTS) \
 	$(TARGET)
 
-$(TARGET): $(OBJECTS)
+# Build Target
+# ------------
+
+$(TARGET): $(OBJECTS) src/main.c
 	$(SET_YELLOW_TEXT)
 	@echo "$(BINARY): Linking $@..."
 	$(SET_WHITE_TEXT)
-	@$(CC) $(CFLAGS) -o $@ $^
+	$(HIDE)$(CC) $(CFLAGS) -o $@ $^ -lm
+
+# Build Objects
+# -------------
 
 $(TARGET_DIR)/%.o: $(SOURCE_DIR)/%.c
 	$(SET_YELLOW_TEXT)
 	@echo "$(BINARY): Building $@..."
 	$(SET_WHITE_TEXT)
-	@$(CC) $(CFLAGS) -c -o $@ $^
+	$(HIDE)$(CC) $(CFLAGS) -c -o $@ $^
+
+# Post Compilation Cleanup
+# ------------------------
 
 post_compilation_cleanup:
 	$(SET_YELLOW_TEXT)
 	@echo "$(BINARY): Cleaning up leftovers..."
 	$(SET_WHITE_TEXT)
 	@rm $(OBJECTS)
+
+# Compilation Done
+# ----------------
 
 compilation_done:
 	$(SET_GREEN_TEXT)
@@ -160,6 +211,9 @@ compilation_done:
 # -----------------------------------------------------------------------------
 # Clean Rules
 # -----------------------------------------------------------------------------
+
+# Clean Objects
+# -------------
 
 clean_objects: $(eval LEFTOVER_OBJECTS:=$(shell find $(TARGET_DIR) -maxdepth 1 -name *.o 2> /dev/null))
 clean_objects: $(eval CLEAN_OBJECTS_CMD:=rm $(LEFTOVER_OBJECTS))
@@ -171,6 +225,9 @@ ifneq ($(LEFTOVER_OBJECTS),)
 	$(SET_WHITE_TEXT)
 endif
 
+# Clean Binaries
+# --------------
+
 clean_binaries: $(eval LEFTOVER_BINARIES:=$(strip $(shell find $(TARGET_DIR) -maxdepth 1 -type f -executable 2> /dev/null)))
 clean_binaries: $(eval CLEAN_BINARIES_CMD:=rm $(LEFTOVER_BINARIES))
 clean_binaries:
@@ -180,6 +237,9 @@ ifneq ($(LEFTOVER_BINARIES),)
 	@$(CLEAN_BINARIES_CMD)
 	$(SET_WHITE_TEXT)
 endif
+
+# Clean Target Dir
+# ----------------
 
 clean_target_dir: $(eval FIND_TARGET_DIR:=$(strip $(shell find . -type d -wholename $(TARGET_DIR) 2> /dev/null)))
 clean_target_dir: $(eval CLEAN_TARGET_DIR_CMD:=rmdir $(TARGET_DIR))
@@ -191,27 +251,11 @@ ifneq ($(FIND_TARGET_DIR),)
 	$(SET_WHITE_TEXT)
 endif
 
+# Clean Done
+# ----------
+
 clean_done:
 	$(SET_GREEN_TEXT)
 	@echo "clean: Clean Done."
 	$(SET_WHITE_TEXT)
-
-# -----------------------------------------------------------------------------
-# Clean Utils
-# -----------------------------------------------------------------------------
-
-# -----------------------------------------
-# If we'd like to prompt prior to deletion:
-# -----------------------------------------
-#
-# ifneq ($(LEFTOVER_BINARIES),)
-# 	@echo "make clean wants to execute the following command:"
-# 	$(SET_YELLOW_TEXT)
-# 	@echo "$(CLEAN_BINARIES_CMD)"
-# 	$(SET_WHITE_TEXT)
-# 	@echo -n "Do you accept? [y/n] " && read ans && [ $${ans:-N} = y ]
-# 	@$(CLEAN_BINARIES_CMD)
-# endif
-#
-# -----------------------------------------
 
