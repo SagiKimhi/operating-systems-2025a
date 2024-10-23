@@ -195,10 +195,12 @@ $(TARGET_DIR)/%.o: $(SOURCE_DIR)/%.c
 # ------------------------
 
 post_compilation_cleanup:
+ifneq($(OBJECTS),)
 	$(SET_YELLOW_TEXT)
 	@echo "$(BINARY): Cleaning up leftovers..."
 	$(SET_WHITE_TEXT)
 	@rm $(OBJECTS)
+endif
 
 # Compilation Done
 # ----------------
