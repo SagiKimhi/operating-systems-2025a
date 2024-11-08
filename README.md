@@ -7,18 +7,21 @@ sharing, learning from other people's solutions, and encouraging collaborations.
 
 ## Socials
 
-<img alt="Discord logo"
-    href=""
-    width="70px"
-    height="70px" 
-    src="https://discord.com/assets/cb48d2a8d4991281d7a6a95d2f58195e.svg" 
-/>
-<img alt="Whatsapp logo"
-    href=""
-    width="70px"
-    height="70px" 
-    src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" 
-/>
+<a href="">
+    <img alt="Discord logo"
+        href=""
+        width="70px"
+        height="70px" 
+        src="https://discord.com/assets/cb48d2a8d4991281d7a6a95d2f58195e.svg" 
+    />
+</a>
+<a href="https://chat.whatsapp.com/K61fhwdv8F5K8qIyyu0mrN">
+    <img alt="Whatsapp logo"
+        width="70px"
+        height="70px" 
+        src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" 
+    />
+</a>
 
 ## Development Process
 
