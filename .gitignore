@@ -36,8 +36,11 @@
 
 # Utilities
 
-!utils/scripts/*
+!utils/scripts/**/*
 !utils/libraries/**/*
 !utils/templates/**/*
 !utils/README.md
 
+# Ignore clangd cache
+
+**/.cache
