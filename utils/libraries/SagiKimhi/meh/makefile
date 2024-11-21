@@ -35,11 +35,6 @@
 
 CC = gcc
 
-# Binary
-# ------
-
-BINARY=a.out
-
 # Directories
 # -----------
 
@@ -47,12 +42,29 @@ SOURCE_DIR=./src
 
 TARGET_DIR=./build
 
+EXAMPLES_DIR = ./examples
+
+# Targets
+# -------
+
+BINARY=a.out
+
+STATIC=libmeh.a
+
+SHARED=libmeh.so
+
+TARGET_STATIC:=$(TARGET_DIR)/$(STATIC)
+
+TARGET_SHARED:=$(TARGET_DIR)/$(SHARED)
+
+TARGET_BINARY:=$(TARGET_DIR)/$(BINARY)
+
 # Files
 # -----
 
-TARGET:=$(TARGET_DIR)/$(BINARY)
-
 SOURCES:=$(filter-out %main.c,$(wildcard $(SOURCE_DIR)/*.c))
+
+EXAMPLES:=$(wildcard $(EXAMPLES_DIR)/*.c))
 
 OBJECTS:=$(subst $(SOURCE_DIR),$(TARGET_DIR),$(SOURCES:.c=.o))
 
@@ -60,6 +72,8 @@ OBJECTS:=$(subst $(SOURCE_DIR),$(TARGET_DIR),$(SOURCES:.c=.o))
 # -----
 
 CFLAGS:=-ansi -std=c99 -Wall -Wextra -I$(SOURCE_DIR) -ggdb
+
+LFLAGS ?= -L$(TARGET_DIR) -Wl,-rpath=$(TARGET_DIR)
 
 # Colors
 # ------
@@ -171,16 +185,34 @@ create_build_dir:
 
 build_and_link: \
 	$(OBJECTS) \
-	$(TARGET)
+	$(TARGET_BINARY)
 
-# Build Target
+# Build Binary
 # ------------
 
-$(TARGET): $(OBJECTS) src/main.c
+$(TARGET_BINARY): $(TARGET_SHARED) src/main.c
 	$(SET_YELLOW_TEXT)
 	@echo "$(BINARY): Linking $@..."
 	$(SET_WHITE_TEXT)
-	$(HIDE)$(CC) $(CFLAGS) -o $@ $^ -lm -pthread
+	$(HIDE)$(CC) $(CFLAGS) $(LFLAGS) -o $@ $^ -lm -pthread -lmeh
+
+# Build Shared Lib
+# ----------------
+
+$(TARGET_SHARED): $(OBJECTS) $(eval OFLAGS ?= -fpic -c)
+	$(SET_YELLOW_TEXT)
+	@echo "$(BINARY): Linking $@..."
+	$(SET_WHITE_TEXT)
+	$(HIDE)$(CC) $(CFLAGS) -shared -o $@ $^ -lm
+
+# Build Static Lib
+# ----------------
+
+$(TARGET_STATIC): $(OBJECTS) $(eval OFLAGS ?= -fpie -c)
+	$(SET_YELLOW_TEXT)
+	@echo "$(BINARY): Linking $@..."
+	$(SET_WHITE_TEXT)
+	$(HIDE)$(CC) $(CFLAGS) -static -o $@ $^ -lm
 
 # Build Objects
 # -------------
@@ -189,7 +221,7 @@ $(TARGET_DIR)/%.o: $(SOURCE_DIR)/%.c
 	$(SET_YELLOW_TEXT)
 	@echo "$(BINARY): Building $@..."
 	$(SET_WHITE_TEXT)
-	$(HIDE)$(CC) $(CFLAGS) -c -o $@ $^
+	$(HIDE)$(CC) $(CFLAGS) $(OFLAGS) -o $@ $^
 
 # Post Compilation Cleanup
 # ------------------------
@@ -207,7 +239,7 @@ endif
 
 compilation_done:
 	$(SET_GREEN_TEXT)
-	@echo "$(BINARY): Build Done. (built to '$(TARGET)')"
+	@echo "$(BINARY): Build Done. (built to '$(TARGET_BINARY)')"
 	$(SET_WHITE_TEXT)
 
 # -----------------------------------------------------------------------------
