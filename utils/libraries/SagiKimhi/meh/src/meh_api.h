@@ -1,6 +1,7 @@
 #ifndef MEH_API_H_
 #define MEH_API_H_
 
+#include "meh_process.h"
 #include "meh_types.h"
 
 /* -----------------------------------------------------------------------------
@@ -8,7 +9,7 @@
  * ----------------------------------------------------------------------------- */
 
 struct meh_bits_api {
-    /* Common Manipulations */
+    /* Manipulations */
 
     meh_bitvec_t (*get)(meh_word_t val, size_t high, size_t low);
 
@@ -16,7 +17,13 @@ struct meh_bits_api {
 
     meh_bitvec_t (*toggle)(meh_word_t val, size_t high, size_t low);
 
-    /* Bit Vector Comparison */
+    /* Operations */
+
+    size_t (*countones)(meh_word_t value);
+
+    size_t (*countzeros)(meh_word_t value);
+
+    /* Policies */
 
     int (*compare)(
         meh_word_t a,
@@ -25,12 +32,6 @@ struct meh_bits_api {
         meh_word_t b,
         meh_word_t bh,
         meh_word_t bl);
-
-    /* Bit Vector Utilities */
-
-    size_t (*countones)(meh_word_t value);
-
-    size_t (*countzeros)(meh_word_t value);
 };
 
 /* -----------------------------------------------------------------------------
@@ -38,7 +39,6 @@ struct meh_bits_api {
  * ----------------------------------------------------------------------------- */
 
 struct meh_darray_api {
-
     /* Constructor */
 
     meh_darray_t (*create)(size_t item_sz);
@@ -47,9 +47,15 @@ struct meh_darray_api {
 
     void (*destroy)(meh_darray_t *da);
 
-    /* Data Manipulation */
+    /* Getters and Setters */
 
-    int (*get)(meh_darray_t da, size_t index, void *dst);
+    void *(*get)(meh_darray_t da, size_t index);
+
+    void *(*pop)(meh_darray_t *da);
+
+    void *(*last)(meh_darray_t da);
+
+    void *(*first)(meh_darray_t da);
 
     int (*set)(meh_darray_t da, size_t index, const void *item);
 
@@ -57,23 +63,59 @@ struct meh_darray_api {
 
     int (*extend)(meh_darray_t *da, void **items, size_t nitems);
 
-    /* Dynamic Array Policies */
+    /* Inquries */
+
+    size_t (*len)(meh_darray_t da);
+
+    size_t (*blen)(meh_darray_t da);
+
+    int (*empty)(meh_darray_t da);
+
+    int (*non_empty)(meh_darray_t da);
+
+    /* Field Policies */
+
+    int (*copy)(meh_darray_t *dst, meh_darray_t src);
 
     int (*take)(meh_darray_t *dst, meh_darray_t *src);
 
     int (*swap)(meh_darray_t *dst, meh_darray_t *src);
 
-    int (*copy)(meh_darray_t *dst, meh_darray_t src);
+    void (*print)(meh_darray_t da, const char *optional_name);
 
     meh_darray_t (*clone)(meh_darray_t da);
-
-    void (*print)(meh_darray_t da, const char *optional_name);
 
     /* Low Level Interface */
 
     int (*resize)(meh_darray_t *da, size_t newsz);
 
     int (*resize_item)(meh_darray_t *da, size_t newsz);
+};
+
+/* -----------------------------------------------------------------------------
+ * Process API Definition
+ * ----------------------------------------------------------------------------- */
+
+struct meh_process_api {
+    /* Constructors */
+
+    meh_process_t (*self)(void);
+    meh_process_t (*init)(pid_t pid, pid_t ppid);
+
+    /* Destructors */
+
+    void (*destroy)(meh_process_t *p);
+
+    /* Fork-Join */
+
+    int (*fork)(meh_process_t *p, size_t nchildren);
+    int (*join)(meh_process_t *p);
+    int (*join_any)(meh_process_t *p);
+    void (*join_none)(meh_process_t *p);
+
+    /* Policies */
+
+    void (*print)(meh_process_t p, char *name);
 };
 
 #endif
