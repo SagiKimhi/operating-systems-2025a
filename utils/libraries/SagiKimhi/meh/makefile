@@ -59,6 +59,8 @@ EXAMPLES_DIR = ./examples
 # Targets
 # -------
 
+EXAMPLE ?= airline_booking_system.c
+
 BINARY=a.out
 
 STATIC=libmeh.a
@@ -71,19 +73,21 @@ TARGET_SHARED:=$(TARGET_DIR)/$(SHARED)
 
 TARGET_BINARY:=$(TARGET_DIR)/$(BINARY)
 
+TARGET_EXAMPLE:=$(TARGET_DIR)/$(EXAMPLE)
+
 # Files
 # -----
 
-SOURCES:=$(filter-out %main.c,$(wildcard $(SOURCE_DIR)/*.c))
-
-EXAMPLES:=$(wildcard $(EXAMPLES_DIR)/*.c))
+SOURCES:=$(wildcard $(SOURCE_DIR)/*.c)
 
 OBJECTS:=$(subst $(SOURCE_DIR),$(TARGET_DIR),$(SOURCES:.c=.o))
 
 # Flags
 # -----
 
-CFLAGS:=-ansi -std=c99 -Wall -Wextra -I$(SOURCE_DIR) -ggdb
+CFLAGS ?= -ansi -Wall -Wextra -ggdb
+
+IFLAGS ?= -I$(SOURCE_DIR) -I$(EXAMPLES_DIR)
 
 LFLAGS ?= -L$(TARGET_DIR) -Wl,-rpath=$(TARGET_DIR)
 
@@ -192,13 +196,13 @@ build_and_link: \
 # Build Binary
 # ------------
 
-$(TARGET_BINARY): $(TARGET_SHARED) src/main.c
+$(TARGET_BINARY): $(TARGET_SHARED) $(EXAMPLES_DIR)/$(EXAMPLE)
 	$(SET_YELLOW_TEXT)
 	@echo "$(BINARY): Linking $@..."
 	$(SET_WHITE_TEXT)
-	$(HIDE)$(CC) $(CFLAGS) $(LFLAGS) -o $@ $^ -lm -pthread -lmeh
-# ar rcu $(TARGET_STATIC) $(OBJECTS)
-# ranlib $(TARGET_STATIC)
+	$(HIDE)$(CC) $(IFLAGS) $(LFLAGS) $(CFLAGS) -o $@ $^ -lm -pthread -lmeh
+	# ar rcu $(TARGET_STATIC) $(OBJECTS)
+	# ranlib $(TARGET_STATIC)
 
 # Build Shared Lib
 # ----------------
@@ -207,7 +211,7 @@ $(TARGET_SHARED): $(OBJECTS) $(eval OFLAGS ?= -fpic -c)
 	$(SET_YELLOW_TEXT)
 	@echo "$(BINARY): Linking $@..."
 	$(SET_WHITE_TEXT)
-	$(HIDE)$(CC) $(CFLAGS) -shared -o $@ $^ -lm
+	$(HIDE)$(CC) $(IFLAGS) $(CFLAGS) -shared -o $@ $^ -lm
 
 # Build Static Lib
 # ----------------

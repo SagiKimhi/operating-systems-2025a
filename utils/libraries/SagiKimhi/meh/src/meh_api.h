@@ -1,8 +1,16 @@
 #ifndef MEH_API_H_
 #define MEH_API_H_
 
-#include "meh_process.h"
+
+#include "meh_io.h"
+#include "meh_mem.h"
+#include "meh_math.h"
+#include "meh_bits.h"
+#include "meh_fork.h"
+#include "meh_misc.h"
 #include "meh_types.h"
+#include "meh_darray.h"
+#include "meh_process.h"
 
 /* -----------------------------------------------------------------------------
  * Bits API Definition
@@ -97,14 +105,25 @@ struct meh_darray_api {
  * ----------------------------------------------------------------------------- */
 
 struct meh_process_api {
-    /* Constructors */
+    /* Constructor/Destructor */
 
     meh_process_t (*self)(void);
     meh_process_t (*init)(pid_t pid, pid_t ppid);
-
-    /* Destructors */
-
     void (*destroy)(meh_process_t *p);
+
+    /* Hierarchy */
+
+    meh_process_t *(*last)(void);
+    meh_process_t *(*first)(void);
+    meh_process_t *(*child)(meh_process_t *p, size_t voidi);
+    meh_process_list_t (*children)(void);
+    size_t (*num_children)(meh_process_t p);
+
+    meh_process_t *(*plast)(meh_process_t *p);
+    meh_process_t *(*pfirst)(meh_process_t *p);
+    meh_process_t *(*pchild)(meh_process_t *p, size_t i);
+    meh_process_t **(*pchildren)(meh_process_t p);
+    size_t (*num_pchildren)(meh_process_t p);
 
     /* Fork-Join */
 

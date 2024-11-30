@@ -1,7 +1,8 @@
-#include "meh.h"
 #include "meh_bits.h"
 #include "meh_darray.h"
 #include "meh_process.h"
+#include "meh_types.h"
+#include "meh.h"
 
 const struct meh_api meh = {
     .bits = {
@@ -13,7 +14,7 @@ const struct meh_api meh = {
         .countzeros = &meh_bits_countones,
     },
 
-    .darray = {
+    .da = {
         .create = &meh_darray_create_,
         .destroy = &meh_darray_destroy,
         .get = &meh_darray_get,
@@ -36,10 +37,13 @@ const struct meh_api meh = {
         .resize_item = &meh_darray_resize_item,
     },
 
-    .process = {
+    .ps = {
         .self = &meh_process_self,
         .init = &meh_process_init,
         .destroy=&meh_process_destroy,
+        .child = &meh_process_child,
+        .children = &meh_process_children,
+        .num_children = &meh_process_num_children,
         .fork = &meh_process_fork,
         .join = &meh_process_join,
         .join_any = &meh_process_join_any,
@@ -53,13 +57,13 @@ const struct meh_api meh = {
  * ----------------------------------------------------------------------------- */
 
 const struct meh_bits_api meh_bits = meh.bits;
-const struct meh_darray_api meh_darray = meh.darray;
-const struct meh_process_api meh_process = meh.process;
+const struct meh_darray_api meh_darray = meh.da;
+const struct meh_process_api meh_process = meh.ps;
 
 /* -----------------------------------------------------------------------------
  * Short Namespace API Variable Definitions
  * ----------------------------------------------------------------------------- */
 
 const struct meh_bits_api bits = meh.bits;
-const struct meh_darray_api darray = meh.darray;
-const struct meh_process_api process = meh.process;
+const struct meh_darray_api da = meh.da;
+const struct meh_process_api ps = meh.ps;

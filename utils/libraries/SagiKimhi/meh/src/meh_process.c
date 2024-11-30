@@ -2,35 +2,41 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-#include "meh_process.h"
-#include "meh_darray.h"
-#include "meh_types.h"
 #include "meh_io.h"
 #include "meh_misc.h"
+#include "meh_types.h"
+#include "meh_darray.h"
+#include "meh_process.h"
 
 /* -----------------------------------------------------------------------------
  * Defines
  * ----------------------------------------------------------------------------- */
 
-#ifndef process_get_child
-# define process_get_child(p, i) \
+#ifndef meh_process_get_child
+# define meh_process_get_child(p, i) \
      meh_cast(meh_process_t *, meh_darray_get((p).children, i))
 #endif
 
-#ifndef process_pop_child
-# define process_pop_child(p) \
+#ifndef meh_process_pop_child
+# define meh_process_pop_child(p) \
      meh_cast(meh_process_t *, meh_darray_pop(&((p).children)))
 #endif
 
-#ifndef process_last_child
-# define process_last_child(p) \
+#ifndef meh_process_last_child
+# define meh_process_last_child(p) \
      meh_cast(meh_process_t *, meh_darray_last((p).children))
 #endif
 
-#ifndef process_first_child
-# define process_first_child(p) \
+#ifndef meh_process_first_child
+# define meh_process_first_child(p) \
      meh_cast(meh_process_t *, meh_darray_first((p).children))
 #endif
+
+/* -----------------------------------------------------------------------------
+ * Static Declarations
+ * ----------------------------------------------------------------------------- */
+
+static volatile meh_process_t __meh_proc = {0};
 
 /* -----------------------------------------------------------------------------
  * Implementation
@@ -39,7 +45,9 @@
 meh_process_t
 meh_process_self(void)
 {
-    return meh_process_init(getpid(), getppid());
+    if (__meh_proc.pid != getpid())
+        __meh_proc = meh_process_init(getpid(), getppid());
+    return __meh_proc;
 }
 
 meh_process_t
@@ -59,6 +67,27 @@ meh_process_destroy(meh_process_t *p)
         meh_process_join(p);
         meh_darray_destroy(&p->children);
     }
+}
+
+meh_process_t *
+meh_process_child(meh_process_t *p, size_t i)
+{
+    return p != NULL ? meh_process_get_child(*p, i): NULL;
+}
+
+meh_process_list_t
+meh_process_children(void)
+{
+    return (meh_process_list_t) {
+        .len=meh_process_self().children.size,
+        .ps=meh_process_self().children.items,
+    };
+}
+
+size_t
+meh_process_num_children(meh_process_t p)
+{
+    return p.children.size;
 }
 
 int
@@ -129,17 +158,17 @@ meh_process_join_any(meh_process_t *p)
         status);
 
     for (i = 0; i < p->children.size; i++)
-        if (process_get_child(*p, i)->pid == pid)
+        if (meh_process_get_child(*p, i)->pid == pid)
             break;
 
     meh_debug(
         "pid-%0d: removing pid %0d from children_list[%0zu]...", p->pid, pid, i);
 
     for (j = i + 1; j < p->children.size; j++, i++)
-        meh_darray_set(p->children, i, process_get_child(*p, j));
+        meh_darray_set(p->children, i, meh_process_get_child(*p, j));
 
     meh_ensure((i == p->children.size - 1), 0);
-    meh_ensure((process_pop_child(*p) != NULL), 0);
+    meh_ensure((meh_process_pop_child(*p) != NULL), 0);
     meh_debug("pid-%0d: done.", p->pid);
     return 1;
 }
