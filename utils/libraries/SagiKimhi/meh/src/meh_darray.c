@@ -6,6 +6,7 @@
 #include "meh_mem.h"
 #include "meh_math.h"
 #include "meh_misc.h"
+#include "meh_bits.h"
 #include "meh_types.h"
 #include "meh_darray.h"
 
@@ -14,7 +15,7 @@
  * ----------------------------------------------------------------------------- */
 
 #ifndef DARRAY_INIT_CAP
-# define DARRAY_INIT_CAP __WORDSIZE
+# define DARRAY_INIT_CAP meh_bit_size(size_t)
 #endif
 
 #ifndef DARRAY_RESIZE_FACTOR

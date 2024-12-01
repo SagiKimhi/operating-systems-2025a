@@ -124,7 +124,6 @@ struct meh_bits32 {
     meh_u32_t b31 : 1;
 };
 
-#if __WORDSIZE == 64
 struct meh_bits64 {
     meh_u64_t b0 : 1;
     meh_u64_t b1 : 1;
@@ -191,7 +190,6 @@ struct meh_bits64 {
     meh_u64_t b62 : 1;
     meh_u64_t b63 : 1;
 };
-#endif
 
 /* -----------------------------------------------------------------------------
  * Unions
@@ -200,12 +198,12 @@ struct meh_bits64 {
 union meh_bitvec {
     meh_i8_t i8[MEH_WORD_BYTES];
     meh_u8_t u8[MEH_WORD_BYTES];
-    meh_i16_t i16[MEH_WORD_BYTES/2];
-    meh_u16_t u16[MEH_WORD_BYTES/2];
-    meh_i32_t i32[MEH_WORD_BYTES/4];
-    meh_u32_t u32[MEH_WORD_BYTES/4];
-    meh_i64_t i64[MEH_WORD_BYTES/8];
-    meh_u64_t u64[MEH_WORD_BYTES/8];
+    meh_i16_t i16[MEH_WORD_BYTES / 2];
+    meh_u16_t u16[MEH_WORD_BYTES / 2];
+    meh_i32_t i32[MEH_WORD_BYTES / 4];
+    meh_u32_t u32[MEH_WORD_BYTES / 4];
+    meh_i64_t i64[MEH_WORD_BYTES / 8];
+    meh_u64_t u64[MEH_WORD_BYTES / 8];
     meh_word_t word;
     meh_bits64_t bits;
     meh_bytes64_t bytes;

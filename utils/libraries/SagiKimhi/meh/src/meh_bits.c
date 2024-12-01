@@ -17,7 +17,8 @@
 #endif
 
 #ifndef meh_bit_mask
-# define meh_bit_mask(H, L) ((~(meh_bit_cast(~0) << ((H) - (L)))) << ((H) - (L)))
+# define meh_bit_mask(H, L) \
+     ((~(meh_bit_cast(~0) << ((H) - (L)))) << ((H) - (L)))
 #endif
 
 #ifndef meh_get_bits
@@ -31,7 +32,8 @@
 #endif
 
 #ifndef meh_toggle_bits
-# define meh_toggle_bits(V, H, L) meh_set_bits(V, H, L, (~meh_get_bits(V, H, L)))
+# define meh_toggle_bits(V, H, L) \
+     meh_set_bits(V, H, L, (~meh_get_bits(V, H, L)))
 #endif
 
 #ifndef meh_compare_bits
