@@ -72,15 +72,15 @@ meh_process_destroy(meh_process_t *p)
 meh_process_t *
 meh_process_child(meh_process_t *p, size_t i)
 {
-    return p != NULL ? meh_process_get_child(*p, i): NULL;
+    return p != NULL ? meh_process_get_child(*p, i) : NULL;
 }
 
 meh_process_list_t
 meh_process_children(void)
 {
-    return (meh_process_list_t) {
-        .len=meh_process_self().children.size,
-        .ps=meh_process_self().children.items,
+    return (meh_process_list_t){
+        .len = meh_process_self().children.size,
+        .ps = meh_process_self().children.items,
     };
 }
 

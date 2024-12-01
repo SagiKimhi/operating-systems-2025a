@@ -1,7 +1,6 @@
 #ifndef MEH_API_H_
 #define MEH_API_H_
 
-
 #include "meh_io.h"
 #include "meh_mem.h"
 #include "meh_math.h"
@@ -9,6 +8,7 @@
 #include "meh_fork.h"
 #include "meh_misc.h"
 #include "meh_types.h"
+#include "meh_compat.h"
 #include "meh_darray.h"
 #include "meh_process.h"
 

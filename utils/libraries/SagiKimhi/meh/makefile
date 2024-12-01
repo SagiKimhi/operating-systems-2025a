@@ -27,72 +27,131 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Options
+# Compiler Options
 # -----------------------------------------------------------------------------
 
-# Verbosity
+# CC:
+#
+# Compiler
+#
+CC ?= gcc
 
-ifneq ($(VERBOSE), true)
-	HIDE = @
-else
-	HIDE =
-endif
+# STD:
+#
+# C standard
+#
+STD ?= -std=c99
+
+# WARN:
+#
+# Compiler warning flags
+#
+WARN ?= -Wall -Wextra
+
+# MAIN:
+#
+# Path to source file of 'main' C program to compile
+#
+MAIN ?= ./examples/airline_booking_system.c
+
+# BINARY:
+#
+# Executable binary output path
+#
+BINARY ?= ./build/a.out
+
+# LIB_TYPE:
+#
+# Whether to build library as static or shared
+#
+LIB_TYPE ?= shared
+
+# BUILD_TYPE:
+#
+# Toggles between different compilation options depending on the build type
+#
+# - release: Enables optimizations and defines __MEH_RELEASE__ (which disables
+#   logging done via meh_log variants)
+# 
+# - debug: Default build, for development
+#
+# - syntax: Only checks source code syntax w/o actully compiling it.
+#
+BUILD_TYPE ?= debug
+
+# -----------------------------------------------------------------------------
+# Logging Options
+# -----------------------------------------------------------------------------
+
+# Verbosity of Makefile, leave empty to mute compilation commands executed by
+# this Makefile during build process.
+VERBOSE=no
 
 # -----------------------------------------------------------------------------
 # Variables
 # -----------------------------------------------------------------------------
 
-# Compiler
-# --------
-
-CC = gcc
-
 # Directories
 # -----------
 
+BUILD_DIR=./build
+
 SOURCE_DIR=./src
 
-TARGET_DIR=./build
-
-EXAMPLES_DIR = ./examples
-
-# Targets
-# -------
-
-EXAMPLE ?= airline_booking_system.c
-
-BINARY=a.out
-
-STATIC=libmeh.a
-
-SHARED=libmeh.so
-
-TARGET_STATIC:=$(TARGET_DIR)/$(STATIC)
-
-TARGET_SHARED:=$(TARGET_DIR)/$(SHARED)
-
-TARGET_BINARY:=$(TARGET_DIR)/$(BINARY)
-
-TARGET_EXAMPLE:=$(TARGET_DIR)/$(EXAMPLE)
-
-# Files
-# -----
+# Input Files
+# -----------
 
 SOURCES:=$(wildcard $(SOURCE_DIR)/*.c)
 
-OBJECTS:=$(subst $(SOURCE_DIR),$(TARGET_DIR),$(SOURCES:.c=.o))
+# Output Files
+# ------------
 
-# Flags
-# -----
+OBJECTS:=$(subst $(SOURCE_DIR),$(BUILD_DIR),$(SOURCES:.c=.o))
 
-CFLAGS ?= -ansi -Wall -Wextra -ggdb
+# Compiler Flags
+# --------------
 
-IFLAGS ?= -I$(SOURCE_DIR) -I$(EXAMPLES_DIR)
+OFLAGS:=-fpic -c
 
-LFLAGS ?= -L$(TARGET_DIR) -Wl,-rpath=$(TARGET_DIR)
+CFLAGS:=$(STD) $(WARN) -I$(SOURCE_DIR)
 
-# Colors
-# ------
+LFLAGS:=-L$(BUILD_DIR) -Wl,-rpath=$(BUILD_DIR)
+
+LIBRARIES:=-lm -pthread
+
+# -----------------------------------------------------------------------------
+# Option Handling
+# -----------------------------------------------------------------------------
+
+ifeq ($(VERBOSE),no)
+	HIDE = @
+else
+	HIDE =
+endif
+
+ifeq ($(BUILD_TYPE),debug)
+	CFLAGS+=-ggdb
+	CFLAGS+=-D__MEH_DEBUG__
+else ifeq ($(BUILD_TYPE),release)
+	CFLAGS+=-O3
+	CFLAGS+=-D__MEH_RELEASE__
+else ifeq ($(BUILD_TYPE),syntax)
+	CFLAGS+=-fsyntax-only
+else
+	CFLAGS+=-ggdb
+endif
+
+ifeq ($(LIB_TYPE),shared)
+	LIBRARY:=$(BUILD_DIR)/libmeh.so
+	LIB_CFLAGS:=$(CFLAGS) -shared
+else
+	LIBRARY:=$(BUILD_DIR)/libmeh.a
+	LIB_CFLAGS:=$(CFLAGS) -static
+endif
+
+# -----------------------------------------------------------------------------
+# I/O Utilities
+# -----------------------------------------------------------------------------
 
 SET_WHITE_TEXT:=@echo -n "\033[0m"
 
@@ -118,10 +177,10 @@ SET_MAGNETA_TEXT:=@echo -n "\033[35m"
 	check \
 	check_binary \
 	compile \
-	create_build_dir \
-	build_and_link \
-	post_compilation_cleanup \
-	compilation_done \
+	prepare \
+	build \
+	link \
+	finalize \
 	clean \
 	clean_objects \
 	clean_binaries \
@@ -131,24 +190,18 @@ SET_MAGNETA_TEXT:=@echo -n "\033[35m"
 # All
 # ---
 
-all: \
-	check \
-	compile
+all: check compile finalize
+
 
 # Check
 # -----
 
-check: \
-	check_binary
+check: check_binary
 
 # Compile
 # -------
 
-compile: \
-	create_build_dir \
-	build_and_link \
-	post_compilation_cleanup \
-	compilation_done
+compile: prepare build link
 
 # Clean
 # -----
@@ -160,95 +213,91 @@ clean: \
 	clean_done
 
 # -----------------------------------------------------------------------------
+# Compilation Stages
+# -----------------------------------------------------------------------------
+
+# Prepare
+# -------
+
+prepare:
+	$(SET_WHITE_TEXT)
+	$(HIDE)echo "creating build directory $(BUILD_DIR)..."
+	$(HIDE)mkdir -p $(BUILD_DIR)
+	$(SET_YELLOW_TEXT)
+	$(HIDE)echo "prepare stage done."
+	$(SET_WHITE_TEXT)
+
+# Build
+# -----
+
+build: $(OBJECTS) $(LIBRARY)
+
+# Link
+# ----
+
+link: $(C_MAIN) $(BINARY)
+
+# Objects
+# -------
+
+$(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.c
+	$(SET_WHITE_TEXT)
+	$(HIDE)echo "building object file '$@'..."
+	$(HIDE)$(CC) $(CFLAGS) $(IFLAGS) $(OFLAGS) -o $@ $^
+
+# Library
+# -------
+
+$(LIBRARY): $(OBJECTS)
+	$(SET_YELLOW_TEXT)
+	$(HIDE)echo "build stage done."
+	$(SET_WHITE_TEXT)
+	$(HIDE)echo "linking $(LIB_TYPE) object '$@'..."
+	$(HIDE)$(CC) $(LIB_CFLAGS) $(IFLAGS) -o $@ $^ $(LIBRARIES)
+	$(SET_WHITE_TEXT)
+
+# Binary
+# ------
+
+$(BINARY): $(LIBRARY) $(MAIN)
+	$(SET_WHITE_TEXT)
+	$(HIDE)echo "linking binary '$@'..."
+	$(HIDE)$(CC) $(CFLAGS) $(IFLAGS) $(LFLAGS) -o $@ $^ -lmeh
+	$(SET_YELLOW_TEXT)
+	$(HIDE)echo "link stage done."
+	$(SET_WHITE_TEXT)
+
+# Finalize
+# --------
+
+finalize:
+ifneq ($(OBJECTS),)
+	$(SET_WHITE_TEXT)
+	$(HIDE)echo "cleaning up leftovers..."
+	$(HIDE)rm $(OBJECTS)
+	$(SET_YELLOW_TEXT)
+	$(HIDE)echo "finalize stage done."
+endif
+	$(SET_GREEN_TEXT)
+	$(HIDE)echo "compilation done."
+	$(SET_WHITE_TEXT)
+
+# -----------------------------------------------------------------------------
 # Check Rules
 # -----------------------------------------------------------------------------
 
 check_binary:
 ifeq ($(BINARY),)
 	$(SET_RED_TEXT)
-	@echo "Binary Check Failed: BINARY variable is not set."
-	$(SET_YELLOW_TEXT)
-	@echo "Please set BINARY variable in Makefile."
-	@echo "Alternativly, you may pass BINARY=<name> to the 'make' command"
+	$(HIDE)echo "binary check failed: BINARY variable is not set."
+	$(SET_WHITE_TEXT)
+	$(HIDE)echo "please set BINARY variable in Makefile."
+	$(HIDE)echo "alternativly, you may pass BINARY=<name> to the 'make' command"
 	$(SET_RED_TEXT)
-	@echo "Aborting compilation."
+	$(HIDE)echo "aborting compilation."
 	$(SET_WHITE_TEXT)
-	@exit 1
+	$(HIDE)exit 1
 endif
-
-# -----------------------------------------------------------------------------
-# Compilation Rules
-# -----------------------------------------------------------------------------
-
-# Create Build Dir
-# ----------------
-
-create_build_dir:
-	@mkdir -p $(TARGET_DIR)
-
-# Build and Link
-# --------------
-
-build_and_link: \
-	$(OBJECTS) \
-	$(TARGET_BINARY)
-
-# Build Binary
-# ------------
-
-$(TARGET_BINARY): $(TARGET_SHARED) $(EXAMPLES_DIR)/$(EXAMPLE)
-	$(SET_YELLOW_TEXT)
-	@echo "$(BINARY): Linking $@..."
-	$(SET_WHITE_TEXT)
-	$(HIDE)$(CC) $(IFLAGS) $(LFLAGS) $(CFLAGS) -o $@ $^ -lm -pthread -lmeh
-	# ar rcu $(TARGET_STATIC) $(OBJECTS)
-	# ranlib $(TARGET_STATIC)
-
-# Build Shared Lib
-# ----------------
-
-$(TARGET_SHARED): $(OBJECTS) $(eval OFLAGS ?= -fpic -c)
-	$(SET_YELLOW_TEXT)
-	@echo "$(BINARY): Linking $@..."
-	$(SET_WHITE_TEXT)
-	$(HIDE)$(CC) $(IFLAGS) $(CFLAGS) -shared -o $@ $^ -lm
-
-# Build Static Lib
-# ----------------
-
-$(TARGET_STATIC): $(OBJECTS) $(eval OFLAGS ?= -fpie -c)
-	$(SET_YELLOW_TEXT)
-	@echo "$(BINARY): Linking $@..."
-	$(SET_WHITE_TEXT)
-	$(HIDE)$(CC) $(CFLAGS) -static -o $@ $^ -lm
-
-# Build Objects
-# -------------
-
-$(TARGET_DIR)/%.o: $(SOURCE_DIR)/%.c
-	$(SET_YELLOW_TEXT)
-	@echo "$(BINARY): Building $@..."
-	$(SET_WHITE_TEXT)
-	$(HIDE)$(CC) $(CFLAGS) $(OFLAGS) -o $@ $^
-
-# Post Compilation Cleanup
-# ------------------------
-
-post_compilation_cleanup:
-	$(SET_YELLOW_TEXT)
-	@echo "$(BINARY): Cleaning up leftovers..."
-	$(SET_WHITE_TEXT)
-ifneq ($(OBJECTS),)
-	@rm $(OBJECTS)
-endif
-
-# Compilation Done
-# ----------------
-
-compilation_done:
-	$(SET_GREEN_TEXT)
-	@echo "$(BINARY): Build Done. (built to '$(TARGET_BINARY)')"
-	$(SET_WHITE_TEXT)
 
 # -----------------------------------------------------------------------------
 # Clean Rules
@@ -257,47 +306,44 @@ compilation_done:
 # Clean Objects
 # -------------
 
-clean_objects: $(eval LEFTOVER_OBJECTS:=$(shell find $(TARGET_DIR) -maxdepth 1 -name *.o 2> /dev/null))
+clean_objects: $(eval LEFTOVER_OBJECTS:=$(shell find $(BUILD_DIR) -maxdepth 1 -name *.o 2> /dev/null))
 clean_objects: $(eval CLEAN_OBJECTS_CMD:=rm $(LEFTOVER_OBJECTS))
 clean_objects:
 ifneq ($(LEFTOVER_OBJECTS),)
-	$(SET_YELLOW_TEXT)
-	@echo "clean: Cleaning Objects... ($(CLEAN_OBJECTS_CMD))"
-	@$(CLEAN_OBJECTS_CMD)
 	$(SET_WHITE_TEXT)
+	$(HIDE)echo "removing leftover object files '$(LEFTOVER_OBJECTS)'..."
+	$(HIDE)$(CLEAN_OBJECTS_CMD)
 endif
 
 # Clean Binaries
 # --------------
 
-clean_binaries: $(eval LEFTOVER_BINARIES:=$(strip $(shell find $(TARGET_DIR) -maxdepth 1 -type f -executable 2> /dev/null)))
-clean_binaries: $(eval CLEAN_BINARIES_CMD:=rm $(LEFTOVER_BINARIES))
+clean_binaries: $(eval BINARIES:=$(strip $(shell find $(BUILD_DIR) -maxdepth 1 -type f -executable 2> /dev/null)))
+clean_binaries: $(eval CLEAN_BINARIES_CMD:=rm $(BINARIES))
 clean_binaries:
-ifneq ($(LEFTOVER_BINARIES),)
-	$(SET_YELLOW_TEXT)
-	@echo "clean: Cleaning Binaries... ($(CLEAN_BINARIES_CMD))"
-	@$(CLEAN_BINARIES_CMD)
+ifneq ($(BINARIES),)
 	$(SET_WHITE_TEXT)
+	$(HIDE)echo "removing leftover binaries '$(BINARIES)'..."
+	$(HIDE)$(CLEAN_BINARIES_CMD)
 endif
 
 # Clean Target Dir
 # ----------------
 
-clean_target_dir: $(eval FIND_TARGET_DIR:=$(strip $(shell find . -type d -wholename $(TARGET_DIR) 2> /dev/null)))
-clean_target_dir: $(eval CLEAN_TARGET_DIR_CMD:=rm -r $(TARGET_DIR))
+clean_target_dir: $(eval FIND_TARGET_DIR:=$(strip $(shell find . -type d -wholename $(BUILD_DIR) 2> /dev/null)))
+clean_target_dir: $(eval CLEAN_TARGET_DIR_CMD:=rmdir $(BUILD_DIR))
 clean_target_dir:
 ifneq ($(FIND_TARGET_DIR),)
-	$(SET_YELLOW_TEXT)
-	@echo "clean: Cleaning Build Directory... ($(CLEAN_TARGET_DIR_CMD))"
-	@$(CLEAN_TARGET_DIR_CMD)
 	$(SET_WHITE_TEXT)
+	$(HIDE)$(CLEAN_TARGET_DIR_CMD)
+	$(HIDE)echo "removing build directory '$(BUILD_DIR)'..."
 endif
 
 # Clean Done
 # ----------
 
 clean_done:
-	$(SET_GREEN_TEXT)
-	@echo "clean: Clean Done."
+	$(SET_YELLOW_TEXT)
+	$(HIDE)echo "clean stage done."
 	$(SET_WHITE_TEXT)
 

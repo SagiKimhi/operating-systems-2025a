@@ -6,17 +6,17 @@
  * ----------------------------------------------------------------------------- */
 
 #ifndef N_SEATS
-#define N_SEATS 250
+# define N_SEATS 250
 #endif
 
 #ifndef N_AGENTS
-#define N_AGENTS 15
+# define N_AGENTS 15
 #endif
 
 #ifndef MEH_SHORT_NAMESPACE
 # define MEH_SHORT_NAMESPACE
-# include "meh.h"
 #endif
+#include "meh.h"
 
 /* -----------------------------------------------------------------------------
  * Typedefs
@@ -149,7 +149,7 @@ airline_system_t
 airline_booking_system_create(void);
 
 void
-airline_booking_system_destroy(airline_system_t *as);
+airline_booking_system_destroy(void);
 
 booking_manager_t
 airline_booking_manager_create(void);
@@ -168,6 +168,5 @@ travel_agent_create(void);
 
 void
 travel_agent_destroy(travel_agent_t *ta);
-
 
 #endif

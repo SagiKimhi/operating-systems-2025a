@@ -2,21 +2,34 @@
 #define MEH_REPORT_MACROS_H_
 
 #ifndef meh_log
-# define meh_log(fd, tag, ...)                                              \
-     do {                                                                   \
-         fprintf(                                                           \
-             fd, "[%s] %s (file: %s, line: %0d): ", tag, __func__, __FILE__, __LINE__); \
-         fprintf(fd, __VA_ARGS__);                                          \
-         fprintf(fd, "\n");                                                 \
+# define meh_log(fd, tag, ...)                  \
+     do {                                       \
+         fprintf(                               \
+             fd,                                \
+             "[%s] %s (file: %s, line: %0d): ", \
+             tag,                               \
+             __func__,                          \
+             __FILE__,                          \
+             __LINE__);                         \
+         fprintf(fd, __VA_ARGS__);              \
+         fprintf(fd, "\n");                     \
      } while (0)
 #endif
 
 #ifndef meh_info
-# define meh_info(fmt, ...) meh_log(stdout, "INFO", fmt, ##__VA_ARGS__)
+# ifdef __MEH_RELEASE__
+#  define meh_info(fmt, ...)
+# else
+#  define meh_info(fmt, ...) meh_log(stdout, "INFO", fmt, ##__VA_ARGS__)
+# endif
 #endif
 
 #ifndef meh_debug
-# define meh_debug(fmt, ...) meh_log(stdout, "DEBUG", fmt, ##__VA_ARGS__)
+# ifndef __MEH_DEBUG__
+#  define meh_debug(fmt, ...)
+# else
+#  define meh_debug(fmt, ...) meh_log(stdout, "DEBUG", fmt, ##__VA_ARGS__)
+# endif
 #endif
 
 #ifndef meh_error

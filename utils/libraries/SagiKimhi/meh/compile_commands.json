@@ -1,13 +1,14 @@
 [
   {
     "arguments": [
-      "/usr/bin/gcc",
-      "-ansi",
+      "/usr/bin/cc",
       "-std=c99",
       "-Wall",
       "-Wextra",
       "-I./src",
       "-ggdb",
+      "-D__MEH_DEBUG__",
+      "-fpic",
       "-c",
       "-o",
       "build/meh_bits.o",
@@ -19,13 +20,14 @@
   },
   {
     "arguments": [
-      "/usr/bin/gcc",
-      "-ansi",
+      "/usr/bin/cc",
       "-std=c99",
       "-Wall",
       "-Wextra",
       "-I./src",
       "-ggdb",
+      "-D__MEH_DEBUG__",
+      "-fpic",
       "-c",
       "-o",
       "build/meh.o",
@@ -37,13 +39,14 @@
   },
   {
     "arguments": [
-      "/usr/bin/gcc",
-      "-ansi",
+      "/usr/bin/cc",
       "-std=c99",
       "-Wall",
       "-Wextra",
       "-I./src",
       "-ggdb",
+      "-D__MEH_DEBUG__",
+      "-fpic",
       "-c",
       "-o",
       "build/meh_darray.o",
@@ -55,43 +58,59 @@
   },
   {
     "arguments": [
-      "/usr/bin/gcc",
-      "-ansi",
+      "/usr/bin/cc",
       "-std=c99",
       "-Wall",
       "-Wextra",
       "-I./src",
       "-ggdb",
+      "-D__MEH_DEBUG__",
+      "-fpic",
       "-c",
       "-o",
-      "build/meh_str.o",
-      "src/meh_str.c"
+      "build/meh_process.o",
+      "src/meh_process.c"
     ],
     "directory": "/home/skimhi/.project/git/university/operating-systems-2025a/utils/libraries/SagiKimhi/meh",
-    "file": "/home/skimhi/.project/git/university/operating-systems-2025a/utils/libraries/SagiKimhi/meh/src/meh_str.c",
-    "output": "/home/skimhi/.project/git/university/operating-systems-2025a/utils/libraries/SagiKimhi/meh/build/meh_str.o"
+    "file": "/home/skimhi/.project/git/university/operating-systems-2025a/utils/libraries/SagiKimhi/meh/src/meh_process.c",
+    "output": "/home/skimhi/.project/git/university/operating-systems-2025a/utils/libraries/SagiKimhi/meh/build/meh_process.o"
   },
   {
     "arguments": [
-      "/usr/bin/gcc",
-      "-c",
-      "-ansi",
+      "/usr/bin/cc",
       "-std=c99",
       "-Wall",
       "-Wextra",
       "-I./src",
       "-ggdb",
-      "build/meh_bits.o",
-      "build/meh.o",
-      "build/meh_darray.o",
-      "build/meh_str.o",
-      "-pthread",
+      "-D__MEH_DEBUG__",
+      "-fpic",
+      "-c",
       "-o",
-      "build/a.out",
-      "src/main.c"
+      "build/meh_semaphore.o",
+      "src/meh_semaphore.c"
     ],
     "directory": "/home/skimhi/.project/git/university/operating-systems-2025a/utils/libraries/SagiKimhi/meh",
-    "file": "/home/skimhi/.project/git/university/operating-systems-2025a/utils/libraries/SagiKimhi/meh/src/main.c",
+    "file": "/home/skimhi/.project/git/university/operating-systems-2025a/utils/libraries/SagiKimhi/meh/src/meh_semaphore.c",
+    "output": "/home/skimhi/.project/git/university/operating-systems-2025a/utils/libraries/SagiKimhi/meh/build/meh_semaphore.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/cc",
+      "-c",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-I./src",
+      "-ggdb",
+      "-D__MEH_DEBUG__",
+      "build/libmeh.so",
+      "-o",
+      "build/a.out",
+      "examples/airline_booking_system.c"
+    ],
+    "directory": "/home/skimhi/.project/git/university/operating-systems-2025a/utils/libraries/SagiKimhi/meh",
+    "file": "/home/skimhi/.project/git/university/operating-systems-2025a/utils/libraries/SagiKimhi/meh/examples/airline_booking_system.c",
     "output": "/home/skimhi/.project/git/university/operating-systems-2025a/utils/libraries/SagiKimhi/meh/build/a.out"
   }
 ]

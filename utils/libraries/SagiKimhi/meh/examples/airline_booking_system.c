@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include <string.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -7,6 +8,8 @@
 #include "airline_booking_system.h"
 #include "meh_fork.h"
 #include "meh_types.h"
+
+airline_system_t booking_system = {0};
 
 /* -----------------------------------------------------------------------------
  * Main
@@ -27,28 +30,14 @@ main(int argc, char *argv[])
 int
 airline_booking_system(void)
 {
-    int ok;
-    airline_system_t airline;
+    booking_system = airline_booking_system_create();
 
-    airline = airline_booking_system_create();
-
-    /* ok = da.extend( */
-    /*          &airline.travel_agents, */
-    /*          &airline.travel_agents.items, */
-    /*          airline.travel_agents.size) */
-    /*      == meh_cast(int, airline.travel_agents.size); */
-
-    /* ok &= ps.fork(&airline.p_info, 3); */
-
-    if (getpid() != airline.p_info.pid) {
-        airline_booking_system_destroy(&airline);
+    if (getpid() != booking_system.p_info.pid) {
+        airline_booking_system_destroy();
     }
 
-    ok = ps.join(&airline.p_info);
-
-    airline_booking_system_destroy(&airline);
-
-    return ok;
+    airline_booking_system_destroy();
+    return 0;
 }
 
 airline_system_t
@@ -83,18 +72,15 @@ airline_booking_system_create(void)
 }
 
 void
-airline_booking_system_destroy(airline_system_t *abs)
+airline_booking_system_destroy(void)
 {
-    if (abs == NULL)
-        return;
+    while (booking_system.travel_agents.size)
+        travel_agent_destroy(da.pop(&booking_system.travel_agents));
 
-    while (abs->travel_agents.size)
-        travel_agent_destroy(da.pop(&abs->travel_agents));
-
-    ps.destroy(&abs->p_info);
-    da.destroy(&abs->travel_agents);
-    airline_booking_center_destroy(&abs->booking_center);
-    airline_booking_manager_destroy(&abs->booking_manager);
+    ps.destroy(&booking_system.p_info);
+    da.destroy(&booking_system.travel_agents);
+    airline_booking_center_destroy(&booking_system.booking_center);
+    airline_booking_manager_destroy(&booking_system.booking_manager);
 }
 
 booking_center_t
