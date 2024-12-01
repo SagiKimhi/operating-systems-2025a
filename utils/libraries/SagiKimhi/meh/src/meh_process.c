@@ -93,7 +93,7 @@ meh_process_num_children(meh_process_t p)
 int
 meh_process_fork(meh_process_t *p, size_t nchildren)
 {
-    pid_t pid;
+    pid_t pid = 0;
 
     meh_ensure(p != NULL, 0);
     meh_ensure(getpid() == p->pid, 0);
